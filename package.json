@@ -1,0 +1,42 @@
+{
+  "name": "color-replace",
+  "description": "Replace color instances with a different color in a given string",
+  "version": "0.0.1",
+  "license": "MIT",
+  "author": {
+    "name": "Vertic A/S",
+    "email": "info@vertic.com",
+    "url": "https://vertic.com/"
+  },
+  "contributors": [
+    "Daniel Kvistgaard <dkvistgaard@vertic.com"
+  ],
+  "keywords": [
+    "color",
+    "colour",
+    "replace",
+    "replacement",
+    "color replacement",
+    "colour replacement",
+    "hex",
+    "rgb",
+    "hsl",
+    "hsv",
+    "hwb",
+    "cmyk",
+    "ansi",
+    "ansi16"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx babel src --out-dir dist",
+    "start": "npx babel src --watch --out-dir dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/cli": "^7.12.16",
+    "@babel/core": "^7.12.16",
+    "@babel/preset-env": "^7.12.16"
+  }
+}
