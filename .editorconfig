@@ -13,7 +13,7 @@ tab_width = 4
 [*.md]
 trim_trailing_whitespace = false
 
-# Matches the exact files either package.json or *.yml
-[{package.json,*.yml,.babelrc,README.md}]
+# Matches the exact files either *.json or *.yml
+[{*.json,*.yml,.babelrc,README.md}]
 indent_style = space
 indent_size = 2
