@@ -33,7 +33,10 @@
     "start": "npx babel src --extensions '.ts' --watch --out-dir dist --verbose",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {},
+  "dependencies": {
+    "color-convert": "^2.0.1",
+    "color-string": "^1.5.4"
+  },
   "devDependencies": {
     "@babel/cli": "^7.12.16",
     "@babel/core": "^7.12.16",
