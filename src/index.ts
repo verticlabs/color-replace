@@ -13,6 +13,7 @@ export const colorReplace = (
 	options: ColorReplaceOptions = {},
 ) => {
 	const opts = getOptions(options);
+	const isCSS = opts.stringType === 'css';
 	let newString:string = string;
 
 	const parsed:ColorStringObject = colorString.get(oldColor);
@@ -27,7 +28,12 @@ export const colorReplace = (
 
 	// Get color as keyword i.e. "white" or "blue"
 	const colorKeyword:string = colorString.to.keyword(value);
-	const colors:string[] = colorKeyword ? [`(?<=\\s|:)${colorKeyword}(?=\\s|;)`] : [];
+	const colors:string[] = [];
+
+	// If colorString could find a keyword that matched the oldColor value
+	if (colorKeyword) {
+		colors.push(isCSS ? `(?<=\\s|:)${colorKeyword}(?=\\s|;)` : colorKeyword);
+	}
 
 	colorTypes.forEach((colorType) => {
 		const converted = convertType(colorType, { model: parsed.model, value });
@@ -73,15 +79,19 @@ export const colorReplace = (
 	// Combining all color type regex groups into one regex
 	// The regex is set to only match colors between colon and semicolon characters,
 	// so it only checks in CSS values and not properties or selectors.
-	const regex = new RegExp(`(?<=:(.*?))(${colors.join('|')})(?=(.*?);)`, 'gim');
+	const regex = isCSS
+		? new RegExp(`(?<=:(.*?))${colors.join('|')}(?=(.*?);)`, 'gim')
+		: new RegExp(colors.join('|'), 'gim');
 
-	newString = newString.replace(regex, (match, offset, preMatch, ...others) => {
+	newString = newString.replace(regex, (match, ...others) => {
+		const groups = isCSS ? others.slice(1) : others;
+
 		// Checks if the current match is an alpha color (rgba or hsla)
 		const isAlpha = match.indexOf('a(') > 0;
 
 		// Locate which color type the current match is
 		const matchType = colorTypes.find((colorType, index) => {
-			return !!others[index];
+			return !!groups[index];
 		}) || 'hex';
 
 		// Convert the newColor to the matched type

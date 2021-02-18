@@ -7,6 +7,7 @@ export const getOptions = (options: ColorReplaceOptions) => {
 		fromType: 'hex',
 		toType: 'hex',
 		includeAlphas: true,
+		stringType: 'string',
 	};
 
 	return { ...defaults, ...options };
