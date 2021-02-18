@@ -3,6 +3,7 @@ import colorString from 'color-string';
 import { convertType, getOptions, getShortHex } from './helpers';
 import { ColorReplaceOptions, ColorStringObject } from './types';
 
+// An array of all supported color types
 const colorTypes:string[] = ['hex', 'rgb', 'hsl'];
 
 export const colorReplace = (
@@ -66,7 +67,7 @@ export const colorReplace = (
 		}
 
 		// Building regex group for specific color type
-		colors.push(`(?<${colorType}>${groupValues.join('|').replace(/(\(|\))/g, '\\$1').replace(/,\s+/g, '(\\s+)?,(\\s+)?')})`);
+		colors.push(`(?<${colorType}>${groupValues.join('|').replace(/(\(|\))/g, '\\$1').replace(/,\s+/g, '[\\s]*,[\\s]*')})`);
 	});
 
 	// Combining all color type regex groups into one regex
@@ -75,12 +76,21 @@ export const colorReplace = (
 	const regex = new RegExp(`(?<=:(.*?))(${colors.join('|')})(?=(.*?);)`, 'gim');
 
 	newString = newString.replace(regex, (match, offset, preMatch, ...others) => {
+		// Checks if the current match is an alpha color (rgba or hsla)
 		const isAlpha = match.indexOf('a(') > 0;
+
+		// Locate which color type the current match is
 		const matchType = colorTypes.find((colorType, index) => {
 			return !!others[index];
 		}) || 'hex';
-		const converted = convertType(matchType, { model: parsed.model, value: newColorValue });
 
+		// Convert the newColor to the matched type
+		const converted = convertType(matchType, {
+			model: newColorParsed.model,
+			value: newColorValue,
+		});
+
+		// Get the new replace color string from the converted color object
 		let replaceColor = colorString.to[matchType](converted);
 		if (isAlpha) replaceColor = replaceColor.replace(/\(/, 'a(').replace(/\)$/, '');
 		else if (!matchType || matchType === 'hex') replaceColor = getShortHex(replaceColor);
@@ -96,9 +106,10 @@ export const colorReplaceMap = (
 	string: string,
 	options: ColorReplaceOptions = {},
 ) => {
-	const colors:Array<string> = Object.keys(colorMap);
 	let newString:string = string;
 
+	// Loop through all colors in the colorMap and replace them in the string
+	const colors:Array<string> = Object.keys(colorMap);
 	colors.forEach((color:string) => {
 		newString = colorReplace(color, colorMap[color], newString, options);
 	});
