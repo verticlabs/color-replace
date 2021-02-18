@@ -29,6 +29,7 @@
   ],
   "main": "dist/index.js",
   "scripts": {
+    "prepare": "npm run build",
     "build": "npx babel src --extensions '.ts' --out-dir dist",
     "start": "npx babel src --extensions '.ts' --watch --out-dir dist --verbose",
     "test": "echo \"Error: no test specified\" && exit 1"
