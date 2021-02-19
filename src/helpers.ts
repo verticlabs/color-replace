@@ -33,6 +33,10 @@ export const readyRegexString = (string: string) => {
 	return string.replace(/(?<!\\)(\(|\))/g, '\\$1');
 };
 
+export const addCheckInCSSValue = (regexString: string) => {
+	return `(?<=:.*?)${regexString}(?=.*?;)`;
+};
+
 export const convertType = (colorType: string, colorObj: ColorStringObject) => {
 	return colorObj.model !== colorType && convert[colorObj.model][colorType] && colorType !== 'hex'
 		? convert[colorObj.model][colorType](colorObj.value)

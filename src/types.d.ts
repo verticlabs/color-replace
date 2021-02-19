@@ -12,3 +12,10 @@ export interface ColorStringObject {
 	model: ColorType;
 	value: number[];
 }
+
+export interface RegexObject {
+	color: string;
+	regex?: string;
+	groups: number;
+	newColors?: { [key: string]: string }
+}
