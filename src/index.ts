@@ -83,13 +83,16 @@ const getColorRegex = (
 		typesConverted[colorType] = convertType(colorType, parsed);
 	});
 
-	// Get color as keyword i.e. "white" or "blue"
-	const colorKeyword: string = colorString.to.keyword(parsed.value);
 	const colors: string[] = [];
 
-	// If colorString could find a keyword that matched the color value
-	if (colorKeyword) {
-		colors.push(isCSS ? `(?<=\\s|:)(${colorKeyword})(?=\\s|;)` : colorKeyword);
+	if (options.includeColorKeyword) {
+		// Get color as keyword i.e. "white" or "blue"
+		const colorKeyword: string = colorString.to.keyword(parsed.value);
+
+		// If colorString could find a keyword that matched the color value
+		if (colorKeyword) {
+			colors.push(isCSS ? `(?<=\\s|:)(${colorKeyword})(?=\\s|;)` : colorKeyword);
+		}
 	}
 
 	colorTypes.forEach((colorType) => {
@@ -129,6 +132,8 @@ const getColorRegex = (
 		}
 
 		// Building regex group for specific color type
+		// In here we escape all parantheses and allow spaces before
+		// and after commas in rgb or hsl values.
 		colors.push(`(${groupValues.join('|').replace(/(\(|\))/g, '\\$1').replace(/,\s+/g, '[\\s]*,[\\s]*')})`);
 	});
 

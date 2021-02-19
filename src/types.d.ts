@@ -5,6 +5,7 @@ export interface ColorReplaceOptions {
 	fromType?: ColorType;
 	toType?: ColorType;
 	includeAlphas?: boolean;
+	includeColorKeyword?: boolean;
 	stringType?: 'string' | 'css';
 }
 
