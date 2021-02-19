@@ -23,11 +23,21 @@ export const colorReplace = (
 	if (!parsed || !newColorParsed) return newString;
 
 	// Get value without alpha if includeAlphas is set to true
-	const value:number[] = opts.includeAlphas ? parsed.value.slice(0, 3) : parsed.value;
-	const newColorValue:number[] = opts.includeAlphas ? newColorParsed.value.slice(0, 3) : newColorParsed.value;
+	if (opts.includeAlphas) {
+		parsed.value = parsed.value.slice(0, 3);
+		newColorParsed.value = newColorParsed.value.slice(0, 3);
+	}
+
+	// Get converted values for all types
+	const typesConverted:{ [key: string]: number[] } = {};
+	const newTypesConverted:{ [key: string]: number[] } = {};
+	colorTypes.forEach((colorType) => {
+		typesConverted[colorType] = convertType(colorType, parsed);
+		newTypesConverted[colorType] = convertType(colorType, newColorParsed);
+	});
 
 	// Get color as keyword i.e. "white" or "blue"
-	const colorKeyword:string = colorString.to.keyword(value);
+	const colorKeyword:string = colorString.to.keyword(parsed.value);
 	const colors:string[] = [];
 
 	// If colorString could find a keyword that matched the oldColor value
@@ -36,8 +46,7 @@ export const colorReplace = (
 	}
 
 	colorTypes.forEach((colorType) => {
-		const converted = convertType(colorType, { model: parsed.model, value });
-
+		const converted = typesConverted[colorType];
 		let colorValue = colorString.to[colorType](converted);
 
 		// Making a regex colorValue for black and white hsl values
@@ -95,10 +104,7 @@ export const colorReplace = (
 		}) || 'hex';
 
 		// Convert the newColor to the matched type
-		const converted = convertType(matchType, {
-			model: newColorParsed.model,
-			value: newColorValue,
-		});
+		const converted = newTypesConverted[matchType];
 
 		// Get the new replace color string from the converted color object
 		let replaceColor = colorString.to[matchType](converted);
