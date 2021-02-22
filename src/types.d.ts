@@ -2,11 +2,8 @@
 export type ColorType = 'hex' | 'rgb' | 'hsl';
 
 export interface ColorReplaceOptions {
-	fromType?: ColorType;
-	toType?: ColorType;
-	includeAlphas?: boolean;
-	includeColorKeyword?: boolean;
 	stringType?: 'string' | 'css';
+	includeColorKeyword?: boolean;
 }
 
 export interface ColorStringObject {

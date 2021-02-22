@@ -72,10 +72,8 @@ const getColorRegex = (
 	// If the color is an invalid color string
 	if (!parsed) return { color, groups: 0 };
 
-	// Get value without alpha if includeAlphas is set to true
-	if (options.includeAlphas) {
-		parsed.value = parsed.value.slice(0, 3);
-	}
+	// Get value without alpha
+	parsed.value = parsed.value.slice(0, 3);
 
 	// Get converted values for all types
 	const typesConverted: { [key: string]: number[] } = {};
@@ -119,12 +117,10 @@ const getColorRegex = (
 
 			case 'rgb':
 			case 'hsl':
-				// If includeAlphas is enabled then we'll add a
-				if (options.includeAlphas) {
-					const rgbaValue: string = colorValue
-						.replace(/^(rgb|hsl)\(/, '$1a(').replace(/\)$/, '');
-					groupValues.push(rgbaValue);
-				}
+				// Add an extra value to look for alpha colors (rgba or hsla)
+				const rgbaValue: string = colorValue
+					.replace(/^(rgb|hsl)\(/, '$1a(').replace(/\)$/, '');
+				groupValues.push(rgbaValue);
 				break;
 
 			default:

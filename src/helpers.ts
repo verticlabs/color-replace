@@ -4,11 +4,8 @@ import { ColorReplaceOptions, ColorStringObject } from './types';
 
 export const getOptions = (options: ColorReplaceOptions) => {
 	const defaults: ColorReplaceOptions = {
-		fromType: 'hex',
-		toType: 'hex',
-		includeAlphas: true,
-		includeColorKeyword: true,
 		stringType: 'string',
+		includeColorKeyword: true,
 	};
 
 	return { ...defaults, ...options };
