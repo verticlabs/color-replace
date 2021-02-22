@@ -13,7 +13,11 @@ To change one specific color to another in a string then use it as:
 ```javascript
 import { colorReplace } from 'color-replace';
 
+const string = 'string test of rgb(255, 255, 255) replacement';
+
 const updatedString = colorReplace('#fff', '#ddd', string);
+
+// response: string test of rgb(221, 221, 221) replacement
 ```
 
 ### Changing multiple colors in one string
@@ -23,12 +27,17 @@ It can also be used to replace many colors at once:
 ```javascript
 import { colorReplaceMap } from 'color-replace';
 
+const string = 'string test of white, rgb(0, 128, 0) and hsla(0, 0%, 0%, 0.3)';
+
 const colorMap = {
   '#fff': '#ddd',
-  'rgb(0, 0, 0)': '#111'
+  'rgb(0, 0, 0)': '#111',
+  green: 'blue',
 };
 
 const updatedString = colorReplaceMap(colorMap, string);
+
+// response: string test of #DDD, rgb(0, 0, 255) and hsla(0, 0%, 7%, 0.3)
 ```
 
 ### Changing color in a CSS string
@@ -38,9 +47,13 @@ When defining the the string is a CSS string, then it will only replace the colo
 ```javascript
 import { colorReplace } from 'color-replace';
 
+const string = '.btn--white { color: #fff; }';
+
 const updatedString = colorReplace('rgb(255, 255, 255)', '#ddd', string, {
   stringType: 'css',
 });
+
+// response: .btn--white { color: #DDD; }
 ```
 
 ## Options
