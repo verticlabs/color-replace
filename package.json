@@ -33,6 +33,7 @@
     "prepare": "npm run build",
     "build": "npx babel src --extensions '.ts' --out-dir dist",
     "start": "npx babel src --extensions '.ts' --watch --out-dir dist --verbose",
+    "postpublish" : "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
