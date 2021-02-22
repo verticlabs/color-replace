@@ -89,7 +89,7 @@ const getColorRegex = (
 
 		// If colorString could find a keyword that matched the color value
 		if (colorKeyword) {
-			colors.push(isCSS ? `(?<=\\s|:)(${colorKeyword})(?=\\s|;)` : colorKeyword);
+			colors.push(isCSS ? `(?<=\\s|:)(${colorKeyword})(?=\\s|;)` : `(${colorKeyword})`);
 		}
 	}
 
@@ -150,16 +150,19 @@ export const colorReplace = (
 	options: ColorReplaceOptions = {},
 ) => {
 	const opts = getOptions(options);
+	const isCSS = opts.stringType === 'css';
 	let newString:string = string;
 
 	// Get all variants of the replacement color
 	const colorVariants: { [key: string]: string } | undefined = getColorVariants(replacement);
 	if (!colorVariants) return newString;
 
-	const regex: RegexObject = getColorRegex(color, opts, true);
+	const regex: RegexObject = getColorRegex(color, opts, isCSS);
 	if (!regex.regex) return newString;
 
-	newString = newString.replace(regex.regex, (match, ...groups) => {
+	regex.newColors = colorVariants;
+
+	newString = newString.replace(new RegExp(regex.regex, 'gim'), (match, ...groups) => {
 		// Getting the match index in the current group
 		const matchIndex = groups.indexOf(match);
 
@@ -176,6 +179,7 @@ export const colorReplaceMap = (
 	options: ColorReplaceOptions = {},
 ) => {
 	const opts = getOptions(options);
+	const isCSS = opts.stringType === 'css';
 	let newString: string = string;
 
 	const allRegex: RegexObject[] = [];
@@ -191,7 +195,7 @@ export const colorReplaceMap = (
 
 	// Combine regexes into one big regex
 	const combinedRegexString = allRegex.filter(reg => reg.regex).map(reg => reg.regex).join('|');
-	const combinedRegex = new RegExp(addCheckInCSSValue(combinedRegexString), 'gim');
+	const combinedRegex = new RegExp(isCSS ? addCheckInCSSValue(combinedRegexString) : combinedRegexString, 'gim');
 
 	newString = string.replace(combinedRegex, (match, ...groups) => {
 		let replaceString: string = match;
