@@ -61,7 +61,7 @@ const updatedString = colorReplace('rgb(255, 255, 255)', '#ddd', string, {
 | Name | Type | Default | Description |
 | :----: | :----: | :-------: | :----------- |
 | **[`stringType`](#stringType)** | `{String}` | `string` | The type of the passed string
-| **[`includeColorKeyword`](includeColorKeyword)** | `{Boolean}` | `true` | Enable/disable lookups for color keywords
+| **[`includeColorKeyword`](#includeColorKeyword)** | `{Boolean}` | `true` | Enable/disable lookups for color keywords
 
 ### `stringType`
 
