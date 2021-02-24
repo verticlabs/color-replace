@@ -1,6 +1,6 @@
-# color-replace
+# @verticlabs/color-replace
 
-color-replace is a replacement library for JavaScript. It replaces all instances of colors in all their forms. Simply pass a color in any format, provide a replacement color (also in any format and it doesn't need to be in the same format as the search color), and it will find all instances of that color and all formats (`hex`, `rgb`, `hsl` and the color keyword if it exists) in a given string.
+@verticlabs/color-replace is a replacement library for JavaScript. It replaces all instances of colors in all their forms. Simply pass a color in any format, provide a replacement color (also in any format and it doesn't need to be in the same format as the search color), and it will find all instances of that color and all formats (`hex`, `rgb`, `hsl` and the color keyword if it exists) in a given string.
 
 ## Usage
 
@@ -11,7 +11,7 @@ This library can be used to replace all instances of one or many colors in a giv
 To change one specific color to another in a string then use it as:
 
 ```javascript
-import { colorReplace } from 'color-replace';
+import { colorReplace } from '@verticlabs/color-replace';
 
 const string = 'string test of rgb(255, 255, 255) replacement';
 
@@ -25,7 +25,7 @@ const updatedString = colorReplace('#fff', '#ddd', string);
 It can also be used to replace many colors at once:
 
 ```javascript
-import { colorReplaceMap } from 'color-replace';
+import { colorReplaceMap } from '@verticlabs/color-replace';
 
 const string = 'string test of white, rgb(0, 128, 0) and hsla(0, 0%, 0%, 0.3)';
 
@@ -45,7 +45,7 @@ const updatedString = colorReplaceMap(colorMap, string);
 When defining the the string is a CSS string, then it will only replace the color instances if they are within the CSS value (between a colon and semicolon character):
 
 ```javascript
-import { colorReplace } from 'color-replace';
+import { colorReplace } from '@verticlabs/color-replace';
 
 const string = '.btn--white { color: #fff; }';
 
