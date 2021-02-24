@@ -1,16 +1,20 @@
 {
-  "name": "color-replace",
-  "description": "Replace color instances with a different color in a given string",
+  "name": "@verticlabs/color-replace",
   "version": "0.0.1",
-  "license": "MIT",
-  "author": {
-    "name": "Vertic A/S",
-    "email": "info@vertic.com",
-    "url": "https://vertic.com/"
+  "description": "Replace color instances with a different color in a given string",
+  "main": "dist/index.js",
+  "files": ["dist/*.js"],
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "npx babel src --extensions '.ts' --out-dir dist",
+    "start": "npx babel src --extensions '.ts' --watch --out-dir dist --verbose",
+    "postpublish" : "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags",
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
   },
-  "contributors": [
-    "Daniel Kvistgaard <dkvistgaard@vertic.com"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/verticlabs/color-replace.git"
+  },
   "keywords": [
     "color",
     "colour",
@@ -22,15 +26,15 @@
     "rgb",
     "hsl"
   ],
-  "main": "dist/index.js",
-  "files": ["dist/*.js"],
-  "scripts": {
-    "prepare": "npm run build",
-    "build": "npx babel src --extensions '.ts' --out-dir dist",
-    "start": "npx babel src --extensions '.ts' --watch --out-dir dist --verbose",
-    "postpublish" : "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push --tags",
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "author": "Vertic A/S (https://vertic.com)",
+  "contributors": [
+    "Daniel Kvistgaard <dkvistgaard@vertic.com>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/verticlabs/color-replace/issues"
   },
+  "homepage": "https://github.com/verticlabs/color-replace#readme",
   "dependencies": {
     "color-convert": "^2.0.1",
     "color-string": "^1.5.4"
