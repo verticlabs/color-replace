@@ -60,8 +60,9 @@ const updatedString = colorReplace('rgb(255, 255, 255)', '#ddd', string, {
 
 | Name | Type | Default | Description |
 | :----: | :----: | :-------: | :----------- |
-| **[`stringType`](#stringType)** | `{String}` | `string` | The type of the passed string
-| **[`includeColorKeyword`](#includeColorKeyword)** | `{Boolean}` | `true` | Enable/disable lookups for color keywords
+| **[`stringType`](#stringType)** | `{String}` | `string` | The type of the passed string |
+| **[`includeColorKeyword`](#includeColorKeyword)** | `{Boolean}` | `true` | Enable/disable lookups for color keywords |
+| **[`hexAlphaSupport`](#hexAlphaSupport)** | `{Boolean}` | `false` | Enable/disable hex alpha/opacity colors |
 
 ### `stringType`
 
@@ -81,3 +82,10 @@ Type: `Boolean`
 Default: `true`
 
 Sets if color keywords (i.e. "white" or "blue") should also be replaced.
+
+### `hexAlphaSupport`
+
+Type: `Boolean`  
+Default: `false`
+
+Defines if hex alpha/opacity colors (#rrggbbaa) should be supported by the library. This is not recommended if it's a CSS string that is used for IE11 supported styling.
