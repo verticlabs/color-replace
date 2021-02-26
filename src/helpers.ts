@@ -1,4 +1,4 @@
-import convert from 'color-convert';
+import colorString from 'color-string';
 
 import { ColorReplaceOptions, ColorStringObject } from './types';
 
@@ -6,15 +6,16 @@ export const getOptions = (options: ColorReplaceOptions) => {
 	const defaults: ColorReplaceOptions = {
 		stringType: 'string',
 		includeColorKeyword: true,
+		hexAlphaSupport: false,
 	};
 
 	return { ...defaults, ...options };
 };
 
 export const getShortHex = (hex: string) => {
-	const reduced = hex
+	const hexValue = hex.replace(/^#/, '');
+	const reduced = hexValue
 		.toUpperCase()
-		.replace(/^#/, '')
 		.split('')
 		.reduce((acc: string, curr: string, index: number) => {
 			if (index % 2 && acc.substr(-1) === curr) {
@@ -24,7 +25,7 @@ export const getShortHex = (hex: string) => {
 			return acc + curr;
 		});
 
-	return reduced.length === 3 ? `#${reduced}` : hex;
+	return reduced.length === hexValue.length / 2 ? `#${reduced}` : hex;
 };
 
 export const readyRegexString = (string: string) => {
@@ -35,8 +36,22 @@ export const addCheckInCSSValue = (regexString: string) => {
 	return `(?<=:.*?)${regexString}(?=.*?;)`;
 };
 
-export const convertType = (colorType: string, colorObj: ColorStringObject) => {
-	return colorObj.model !== colorType && convert[colorObj.model][colorType] && colorType !== 'hex'
-		? convert[colorObj.model][colorType](colorObj.value)
-		: colorObj.value;
+export const isAlphaColor = (color: string): boolean => {
+	return !!color.match(/^(rgb|hsl)a\(/i);
+};
+
+export const convertType = (
+	colorType: string,
+	color: string,
+	options: ColorReplaceOptions | undefined,
+) => {
+	const colorObj: ColorStringObject = colorString.get(color);
+
+	if (colorType === 'hex' && options && !options.hexAlphaSupport && colorObj.value[3] !== 1) {
+		return null;
+	}
+
+	return colorString.to[colorType]
+		? colorString.to[colorType](colorObj.value)
+		: color;
 };

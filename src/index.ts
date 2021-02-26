@@ -5,6 +5,7 @@ import {
 	convertType,
 	getOptions,
 	getShortHex,
+	isAlphaColor,
 } from './helpers';
 
 import {
@@ -16,17 +17,27 @@ import {
 // An array of all supported color types
 const colorTypes:string[] = ['hex', 'rgb', 'hsl'];
 
-const getColorVariants = (color: string): { [key: string]: string } | undefined => {
-	const parsed: ColorStringObject = colorString.get(color);
-	if (!parsed) return {};
-
+const getColorVariants = (
+	color: string,
+	options: ColorReplaceOptions | undefined = undefined,
+	isReplacementVariants: boolean = true,
+): { [key: string]: string } => {
 	// Get converted values for all types
 	const colorsConverted: { [key: string]: string } = {};
 	colorTypes.forEach((colorType) => {
-		colorsConverted[colorType] = colorString.to[colorType](convertType(colorType, parsed));
+		let converted = convertType(colorType, color, options);
+
+		// Set hex value as rgb for alpha colors when hexAlphaSupport is false
+		if (!converted && colorType === 'hex' && options && !options.hexAlphaSupport) {
+			converted = convertType('rgb', color, options);
+		}
+
+		if (!converted) return;
+
+		colorsConverted[colorType] = converted;
 
 		// Try to get short hex version
-		if (colorType === 'hex') {
+		if (isReplacementVariants && colorType === 'hex') {
 			colorsConverted[colorType] = getShortHex(colorsConverted[colorType]);
 		}
 	});
@@ -40,6 +51,7 @@ const getRegexMatchReplacement = (
 	regex: RegexObject,
 ): string => {
 	let replacement: string = match;
+	const { newColors } = regex;
 
 	// Get all match types available in the group
 	// If there are more groups that in the colorTypes array, then a keyword is
@@ -50,12 +62,25 @@ const getRegexMatchReplacement = (
 	const matchType = groupColorTypes[matchIndex];
 
 	// Get the new color replacement
-	if (regex.newColors && regex.newColors[matchType]) {
-		replacement = regex.newColors[matchType];
+	if (newColors && newColors[matchType]) {
+		replacement = newColors[matchType];
+	}
 
+	// If we couldn't find a specific replacement match by type
+	if (newColors && replacement === match) {
+		// Find the first color with a value that can be used
+		const replacementType = Object.keys(newColors).find((colorKey) => {
+			return !!newColors[colorKey];
+		});
+
+		if (replacementType) {
+			replacement = newColors[replacementType];
+		}
+	}
+
+	if (replacement !== match) {
 		// Checks if the current match is an alpha color (rgba or hsla)
-		const isAlpha = match.indexOf('a(') > 0;
-		if (isAlpha) replacement = replacement.replace(/\(/, 'a(').replace(/\)$/, '');
+		if (isAlphaColor(match) && !regex.replaceAlpha) replacement = replacement.replace(/\(/, 'a(').replace(/\)$/, '');
 	}
 
 	return replacement;
@@ -66,24 +91,18 @@ const getColorRegex = (
 	options: ColorReplaceOptions = {},
 	checkInCSSValue: boolean = false,
 ): RegexObject => {
-	const isCSS = options.stringType === 'css';
+	const opts = { ...options, hexAlphaSupport: true };
+	const isCSS = opts.stringType === 'css';
 	const parsed: ColorStringObject = colorString.get(color);
 
 	// If the color is an invalid color string
 	if (!parsed) return { color, groups: 0 };
 
-	// Get value without alpha
-	parsed.value = parsed.value.slice(0, 3);
-
 	// Get converted values for all types
-	const typesConverted: { [key: string]: number[] } = {};
-	colorTypes.forEach((colorType) => {
-		typesConverted[colorType] = convertType(colorType, parsed);
-	});
-
+	const typesConverted: { [key: string]: string } = getColorVariants(color, opts, false);
 	const colors: string[] = [];
 
-	if (options.includeColorKeyword) {
+	if (opts.includeColorKeyword) {
 		// Get color as keyword i.e. "white" or "blue"
 		const colorKeyword: string = colorString.to.keyword(parsed.value);
 
@@ -94,16 +113,16 @@ const getColorRegex = (
 	}
 
 	colorTypes.forEach((colorType) => {
-		const converted: number[] = typesConverted[colorType];
-		let colorValue: string = colorString.to[colorType](converted);
+		let colorValue: string = typesConverted[colorType];
+		if (!colorValue) return;
 
 		// Making a regex colorValue for black and white hsl values
 		// as they can be styled with any hue and saturation value
-		if (colorType === 'hsl' && (converted[2] === 100 || converted[2] === 0)) {
-			colorValue = colorValue.replace(/(?<=hsl\()[\d\s,%]*(?=,\s?(10)?0%\))/i, '\\d{1,3}, \\d{1,3}%');
+		if (colorType === 'hsl' && colorValue.match(/hsla?\([\d\s]*,[\d\s%]*,\s?(0|100)%/gi)) {
+			colorValue = colorValue.replace(/(?<=hsla?\()[\d\s]*,\s?[\d\s%]*/i, '\\d{1,3}, \\d{1,3}%');
 		}
 
-		const groupValues: string[] = [colorValue];
+		let groupValues: string[] = [colorValue];
 
 		// Including extra checks for the specific color type
 		switch (colorType) {
@@ -117,20 +136,28 @@ const getColorRegex = (
 
 			case 'rgb':
 			case 'hsl':
-				// Add an extra value to look for alpha colors (rgba or hsla)
-				const rgbaValue: string = colorValue
-					.replace(/^(rgb|hsl)\(/, '$1a(').replace(/\)$/, '');
-				groupValues.push(rgbaValue);
+				// If the colorValue isn't already an alpha color, then add
+				// an extra value to look for alpha colors (rgba or hsla)
+				if (!isAlphaColor(colorValue)) {
+					const rgbaValue: string = colorValue
+						.replace(/^(rgb|hsl)\(/, '$1a(').replace(/\)$/, '');
+					groupValues.push(rgbaValue);
+				}
 				break;
 
 			default:
 				break;
 		}
 
+		groupValues = groupValues.map((groupValue) => {
+			const newGroupValue = groupValue.replace(/(\(|\))/g, '\\$1').replace(/,\s+/g, '[\\s]*,[\\s]*');
+			return colorType === 'hex' ? `${newGroupValue}(?=[\\s;])` : newGroupValue;
+		});
+
 		// Building regex group for specific color type
 		// In here we escape all parantheses and allow spaces before
 		// and after commas in rgb or hsl values.
-		colors.push(`(${groupValues.join('|').replace(/(\(|\))/g, '\\$1').replace(/,\s+/g, '[\\s]*,[\\s]*')})`);
+		colors.push(`(${groupValues.join('|')})`);
 	});
 
 	// Combining all color type regex groups into one regex
@@ -140,6 +167,7 @@ const getColorRegex = (
 		color,
 		regex: checkInCSSValue ? addCheckInCSSValue(colors.join('|')) : colors.join('|'),
 		groups: colors.length,
+		replaceAlpha: isAlphaColor(color), // if the original color is an alpha color, then we'll replace it all
 	};
 };
 
@@ -154,7 +182,7 @@ export const colorReplace = (
 	let newString:string = string;
 
 	// Get all variants of the replacement color
-	const colorVariants: { [key: string]: string } | undefined = getColorVariants(replacement);
+	const colorVariants: { [key: string]: string } = getColorVariants(replacement, opts, true);
 	if (!colorVariants) return newString;
 
 	const regex: RegexObject = getColorRegex(color, opts, isCSS);
@@ -188,9 +216,12 @@ export const colorReplaceMap = (
 	const colors: string[] = Object.keys(colorMap);
 	colors.forEach((color: string) => {
 		// Get all variants of the replacement color
-		const colorVariants: { [key: string]: string } | undefined = getColorVariants(colorMap[color]);
+		const colorVariants: { [key: string]: string } = getColorVariants(colorMap[color], opts, true);
 
-		allRegex.push({ ...getColorRegex(color, opts), newColors: colorVariants });
+		allRegex.push({
+			...getColorRegex(color, opts),
+			newColors: colorVariants,
+		});
 	});
 
 	// Combine regexes into one big regex

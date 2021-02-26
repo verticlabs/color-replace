@@ -4,6 +4,7 @@ export type ColorType = 'hex' | 'rgb' | 'hsl';
 export interface ColorReplaceOptions {
 	stringType?: 'string' | 'css';
 	includeColorKeyword?: boolean;
+	hexAlphaSupport?: boolean;
 }
 
 export interface ColorStringObject {
@@ -15,5 +16,6 @@ export interface RegexObject {
 	color: string;
 	regex?: string;
 	groups: number;
-	newColors?: { [key: string]: string }
+	newColors?: { [key: string]: string };
+	replaceAlpha?: boolean;
 }
