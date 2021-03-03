@@ -5,6 +5,7 @@ import {
 	convertType,
 	getOptions,
 	getShortHex,
+	getStringTypeRegex,
 	isAlphaColor,
 } from './helpers';
 
@@ -89,7 +90,7 @@ const getRegexMatchReplacement = (
 const getColorRegex = (
 	color: string,
 	options: ColorReplaceOptions = {},
-	checkInCSSValue: boolean = false,
+	addTypeSpecificRegex: boolean = false,
 ): RegexObject => {
 	const opts = { ...options, hexAlphaSupport: true };
 	const isCSS = opts.stringType === 'css';
@@ -165,7 +166,7 @@ const getColorRegex = (
 	// so it only checks in CSS values and not properties or selectors.
 	return {
 		color,
-		regex: checkInCSSValue ? addCheckInCSSValue(colors.join('|')) : colors.join('|'),
+		regex: addTypeSpecificRegex ? getStringTypeRegex(colors.join('|'), opts.stringType) : colors.join('|'),
 		groups: colors.length,
 		replaceAlpha: isAlphaColor(color), // if the original color is an alpha color, then we'll replace it all
 	};
@@ -178,14 +179,13 @@ export const colorReplace = (
 	options: ColorReplaceOptions = {},
 ) => {
 	const opts = getOptions(options);
-	const isCSS = opts.stringType === 'css';
 	let newString:string = string;
 
 	// Get all variants of the replacement color
 	const colorVariants: { [key: string]: string } = getColorVariants(replacement, opts, true);
 	if (!colorVariants) return newString;
 
-	const regex: RegexObject = getColorRegex(color, opts, isCSS);
+	const regex: RegexObject = getColorRegex(color, opts, opts.stringType !== 'string');
 	if (!regex.regex) return newString;
 
 	regex.newColors = colorVariants;
@@ -207,7 +207,6 @@ export const colorReplaceMap = (
 	options: ColorReplaceOptions = {},
 ) => {
 	const opts = getOptions(options);
-	const isCSS = opts.stringType === 'css';
 	let newString: string = string;
 
 	const allRegex: RegexObject[] = [];
@@ -226,7 +225,7 @@ export const colorReplaceMap = (
 
 	// Combine regexes into one big regex
 	const combinedRegexString = allRegex.filter(reg => reg.regex).map(reg => reg.regex).join('|');
-	const combinedRegex = new RegExp(isCSS ? addCheckInCSSValue(combinedRegexString) : combinedRegexString, 'gim');
+	const combinedRegex = new RegExp(getStringTypeRegex(combinedRegexString, opts.stringType), 'gim');
 
 	newString = string.replace(combinedRegex, (match, ...groups) => {
 		let replaceString: string = match;

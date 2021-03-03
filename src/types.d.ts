@@ -2,7 +2,7 @@
 export type ColorType = 'hex' | 'rgb' | 'hsl';
 
 export interface ColorReplaceOptions {
-	stringType?: 'string' | 'css';
+	stringType?: 'string' | 'css' | 'html';
 	includeColorKeyword?: boolean;
 	hexAlphaSupport?: boolean;
 }

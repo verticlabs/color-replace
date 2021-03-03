@@ -68,13 +68,15 @@ const updatedString = colorReplace('rgb(255, 255, 255)', '#ddd', string, {
 
 Type: `String`  
 Default: `string`  
-Options: `string` | `css`
+Options: `string` | `css` | `html`
 
 Tell the library what type of string has been passed and it will act accordingly.
 
 It will replace all instances of the color(s) if it's set as `string`.
 
-If the library is used on a CSS string, then it recommended to set this option as `css` - especially when also having the [`includeColorKeyword`](#includeColorKeyword) as `true` - as then it will only replace instances in the CSS value and ignore any keyword instances in URLs (e.g. background image stylings). This way it won't change the class names, styling properties etc.
+If the library is used on a CSS string, then it is recommended to set this option to `css` - especially when also having the [`includeColorKeyword`](#includeColorKeyword) as `true` - as then it will only replace instances in the CSS value and ignore any keyword instances in URLs (e.g. background image stylings). This way it won't change the class names, styling properties etc.
+
+If the library is used on a HTML string, then it is recommended to set this options to `html`, as this will then only replace color instances in the `style` attributes of the HTML elements and in styling inside `<style>` tags.
 
 ### `includeColorKeyword`
 
