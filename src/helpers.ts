@@ -37,7 +37,7 @@ export const addCheckInCSSValue = (regexString: string) => {
 };
 
 export const addCheckInHTMLValue = (regexString: string) => {
-	return `(?<=style="[^"]*?|<style>.|\s*?)${addCheckInCSSValue(regexString)}(?=[^"]*?"|.|\s*?<\/style>)`;
+	return `(?<=style="[^"]*?|<style>[^<]*?)${addCheckInCSSValue(regexString)}(?=[^"]*?"|[^<]*?<\/style>)`;
 };
 
 export const getStringTypeRegex = (
@@ -45,14 +45,14 @@ export const getStringTypeRegex = (
 	stringType: ColorReplaceOptions['stringType'],
 ) => {
 	if (stringType === 'css') {
-		return addCheckInCSSValue(regexString);
+		return addCheckInCSSValue(`(${regexString})`);
 	}
 
 	if (stringType === 'html') {
-		return addCheckInHTMLValue(regexString);
+		return addCheckInHTMLValue(`(${regexString})`);
 	}
 
-	return regexString;
+	return `(${regexString})`;
 };
 
 export const isAlphaColor = (color: string): boolean => {

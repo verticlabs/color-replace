@@ -1,7 +1,6 @@
 import colorString from 'color-string';
 
 import {
-	addCheckInCSSValue,
 	convertType,
 	getOptions,
 	getShortHex,
@@ -190,7 +189,7 @@ export const colorReplace = (
 
 	regex.newColors = colorVariants;
 
-	newString = newString.replace(new RegExp(regex.regex, 'gim'), (match, ...groups) => {
+	newString = newString.replace(new RegExp(regex.regex, 'gim'), (match, regexGroup, ...groups) => {
 		// Getting the match index in the current group
 		const matchIndex = groups.indexOf(match);
 
@@ -227,7 +226,7 @@ export const colorReplaceMap = (
 	const combinedRegexString = allRegex.filter(reg => reg.regex).map(reg => reg.regex).join('|');
 	const combinedRegex = new RegExp(getStringTypeRegex(combinedRegexString, opts.stringType), 'gim');
 
-	newString = string.replace(combinedRegex, (match, ...groups) => {
+	newString = string.replace(combinedRegex, (match, regexGroup, ...groups) => {
 		let replaceString: string = match;
 
 		const groupIndex: number = groups.indexOf(match);
