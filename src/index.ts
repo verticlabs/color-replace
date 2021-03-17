@@ -10,7 +10,6 @@ import {
 
 import {
 	ColorReplaceOptions,
-	ColorStringObject,
 	RegexObject,
 } from './types';
 
@@ -104,7 +103,8 @@ const getColorRegex = (
 
 		// If colorString could find a keyword that matched the color value
 		if (colorKeyword) {
-			colors.push(isStyling ? `(?<=\\s|:)(${colorKeyword})(?=\\s|;)` : `(${colorKeyword})`);
+			// If it's a styling string then don't replace keywords in parentheses (in url(...) stylings)
+			colors.push(isStyling ? `(${colorKeyword}(?![^\\(]*\\)))` : `(${colorKeyword})`);
 		}
 	}
 
