@@ -180,7 +180,7 @@ export const colorReplace = (
 	const colorVariants: { [key: string]: string } = getColorVariants(replacement, opts, true);
 	if (!colorVariants) return newString;
 
-	const regex: RegexObject = getColorRegex(color, opts, opts.stringType !== 'string');
+	const regex: RegexObject = getColorRegex(color, opts, true);
 	if (!regex.regex) return newString;
 
 	regex.newColors = colorVariants;
