@@ -38,7 +38,8 @@
   },
   "homepage": "https://github.com/verticlabs/color-replace#readme",
   "dependencies": {
-    "color-string": "^1.5.4"
+    "color-convert": "^2.0.1",
+    "color-string": "^1.5.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.16",

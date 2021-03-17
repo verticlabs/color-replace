@@ -1,3 +1,4 @@
+import convert from 'color-convert';
 import colorString from 'color-string';
 
 import { ColorReplaceOptions, ColorStringObject } from './types';
@@ -64,13 +65,27 @@ export const convertType = (
 	color: string,
 	options: ColorReplaceOptions | undefined,
 ) => {
-	const colorObj: ColorStringObject = colorString.get(color);
+	let colorObj: ColorStringObject = colorString.get(color);
+	if (colorObj.model === 'hsl' && colorType !== 'hsl') {
+		colorObj = {
+			model: 'rgb',
+			value: [
+				...convert.hsl.rgb(colorObj.value.slice(0, 3)),
+				colorObj.value[3],
+			],
+		};
+	}
 
-	if (colorType === 'hex' && options && !options.hexAlphaSupport && colorObj.value[3] !== 1) {
+	let { value } = colorObj;
+	value = colorType === 'hsl' && colorObj.model !== 'hsl'
+		? [...convert.rgb.hsl(value[0], value[1], value[2]), value[3]]
+		: value;
+
+	if (colorType === 'hex' && options && !options.hexAlphaSupport && value[3] !== 1) {
 		return null;
 	}
 
 	return colorString.to[colorType]
-		? colorString.to[colorType](colorObj.value)
+		? colorString.to[colorType](value)
 		: color;
 };
