@@ -92,11 +92,7 @@ const getColorRegex = (
 	addTypeSpecificRegex: boolean = false,
 ): RegexObject => {
 	const opts = { ...options, hexAlphaSupport: true };
-	const isCSS = opts.stringType === 'css';
-	const parsed: ColorStringObject = colorString.get(color);
-
-	// If the color is an invalid color string
-	if (!parsed) return { color, groups: 0 };
+	const isStyling = opts.stringType === 'css' || opts.stringType === 'html';
 
 	// Get converted values for all types
 	const typesConverted: { [key: string]: string } = getColorVariants(color, opts, false);
@@ -104,11 +100,11 @@ const getColorRegex = (
 
 	if (opts.includeColorKeyword) {
 		// Get color as keyword i.e. "white" or "blue"
-		const colorKeyword: string = colorString.to.keyword(parsed.value);
+		const colorKeyword: string = convertType('keyword', color, opts);
 
 		// If colorString could find a keyword that matched the color value
 		if (colorKeyword) {
-			colors.push(isCSS ? `(?<=\\s|:)(${colorKeyword})(?=\\s|;)` : `(${colorKeyword})`);
+			colors.push(isStyling ? `(?<=\\s|:)(${colorKeyword})(?=\\s|;)` : `(${colorKeyword})`);
 		}
 	}
 
